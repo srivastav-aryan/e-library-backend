@@ -7,7 +7,16 @@ const startServer = async () => {
 
    const port = conf.port || 8000;
 
-   app.listen(port, () => console.log(`Server Listening on port: ${port}`));
+   const server = app.listen(port, () =>
+      console.log(`Server Listening on the port: ${port}`)
+   );
+
+   process.on("SIGINT", () => {
+      server.close(() => {
+         console.log("Server closed");
+         process.exit(0);
+      });
+   });
 };
 
 startServer();
