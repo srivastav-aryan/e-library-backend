@@ -1,4 +1,4 @@
-import { conf } from "../../config/config.mjs";
+import { conf } from "../config/config.mjs";
 
 const globalErrorHandler = (err, req, res, next) => {
    const statusCode = err.statusCode || 500;

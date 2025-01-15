@@ -1,6 +1,6 @@
 import app from "./src/app.mjs";
-import { conf } from "./config/config.mjs";
-import connectDb from "./config/dbconfig.mjs";
+import { conf } from "./src/config/config.mjs";
+import connectDb from "./src/config/dbconfig.mjs";
 
 const startServer = async () => {
    await connectDb();

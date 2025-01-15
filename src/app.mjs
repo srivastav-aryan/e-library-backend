@@ -1,6 +1,5 @@
 import express from "express";
-import { conf } from "../config/config.mjs";
-import createHttpError from "http-errors";
+// import { conf } from "../config/config.mjs";
 import globalErrorHandler from "./middlewares/globalErrorHandler.mjs";
 
 const app = express();
