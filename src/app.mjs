@@ -1,12 +1,15 @@
 import express from "express";
-// import { conf } from "../config/config.mjs";
 import globalErrorHandler from "./middlewares/globalErrorHandler.mjs";
+import userRouter from "./User/userRouter.mjs";
 
 const app = express();
 
 app.get("/", (req, res) => {
    res.json({ message: "this is home page" });
 });
+
+// ----- User routers---
+app.use("/api/users", userRouter);
 
 // ----global error handling----
 app.use(globalErrorHandler);
