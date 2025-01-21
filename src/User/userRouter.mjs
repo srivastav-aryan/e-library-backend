@@ -1,8 +1,10 @@
 import express from "express";
 import { createUser } from "./userController.mjs";
+import { checkSchema } from "express-validator";
+import validatorSchema from "../expressValidator/userRegisterSchema.mjs";
 
 const userRouter = express.Router();
 
-userRouter.post("/register", createUser);
+userRouter.post("/register", checkSchema(validatorSchema), createUser);
 
 export default userRouter;
