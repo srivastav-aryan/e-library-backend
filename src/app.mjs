@@ -4,12 +4,13 @@ import userRouter from "./User/userRouter.mjs";
 
 const app = express();
 app.use(express.json());
+// app.use(express.urlencoded)
 
 app.get("/", (req, res) => {
    res.json({ message: "this is home page" });
 });
 
-// ----- User routers---
+// ----- User router api endpoint---
 app.use("/api/users", userRouter);
 
 // ----global error handling----

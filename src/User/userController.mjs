@@ -6,16 +6,16 @@ import jwt from "jsonwebtoken";
 import { conf } from "../config/config.mjs";
 
 const createUser = async (req, res, next) => {
+   const result = validationResult(req);
+
+   const { name, email, password } = req.body;
+
+   if (!result.isEmpty()) {
+      const customError = createHttpError(400, result.errors[0].msg);
+      return next(customError);
+   }
+
    try {
-      const result = validationResult(req);
-
-      const { name, email, password } = req.body;
-
-      if (!result.isEmpty()) {
-         const customError = createHttpError(400, result.errors[0].msg);
-         return next(customError);
-      }
-
       const alreadyExistingUser = await Users.findOne({ email: email });
 
       if (alreadyExistingUser) {
@@ -26,7 +26,11 @@ const createUser = async (req, res, next) => {
             )
          );
       }
+   } catch (error) {
+      return next(createHttpError(500, `DB querry error: ${error}`));
+   }
 
+   try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = new Users({
@@ -41,9 +45,8 @@ const createUser = async (req, res, next) => {
       });
 
       res.status(200).json({ accessToken: token });
-   } catch (e) {
-      const lastError = createHttpError(500, `last registeration error:- ${e}`);
-      next(lastError);
+   } catch (error) {
+      return next(createHttpError(500, `Saving user error: ${error}`));
    }
 };
 
