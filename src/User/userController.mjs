@@ -50,4 +50,24 @@ const createUser = async (req, res, next) => {
    }
 };
 
-export { createUser };
+const loginUser = async (req, res, next) => {
+   const { email, password } = req.body;
+
+   try {
+      const user = await Users.findOne({ email });
+      if (!user) return next(createHttpError(401, `invalid email`));
+
+      const passwordValid = await bcrypt.compare(password, user.password);
+      if (!passwordValid) return next(createHttpError(401, "invalid passwrod"));
+      const token = jwt.sign({ sub: user._id }, process.env.jwt_secret, {
+         expiresIn: "7d",
+      });
+
+      res.status(200).json({ accessToken: token });
+   } catch (error) {
+      console.log(`server failiure:- ${error}`);
+      return next(createHttpError(500, error));
+   }
+};
+
+export { createUser, loginUser };
