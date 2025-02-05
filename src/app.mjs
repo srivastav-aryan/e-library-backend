@@ -2,6 +2,7 @@ import express from "express";
 import globalErrorHandler from "./middlewares/globalErrorHandler.mjs";
 import userRouter from "./User/userRouter.mjs";
 import passport from "passport";
+import { bookRouter } from "./Book/bookRouter.mjs";
 
 const app = express();
 app.use(express.json());
@@ -14,6 +15,9 @@ app.get("/", (req, res) => {
 
 // ----- User router api endpoint---
 app.use("/api/users", userRouter);
+
+// ------ book router api endpoint----
+app.use("/api/books", bookRouter);
 
 // ----global error handling----
 app.use(globalErrorHandler);
