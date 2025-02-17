@@ -1,50 +1,88 @@
 import cloudinary from "../config/cloudinary.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import fs from "fs";
+import fs from "fs/promises";
 import createHttpError from "http-errors";
+import Books from "./bookModel.mjs";
+import { validationResult } from "express-validator";
 
+// -----setup __dirname and __filename for es module-----
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ------Allowed mimetypes for file uploads-----
+const allowedMimeTypes = {
+   coverImage: ["image/jpeg", "image/png", "image/gif"],
+   file: ["application/pdf"],
+};
+
+// --------Utility function for uploading file to cloudinary-------
+const uploadFileToCloudinary = async (file, folder, format) => {
+   const filePath = path.resolve(
+      __dirname,
+      "../../public/data/uploads/",
+      file.filename
+   );
+   const uploader = await cloudinary.uploader.upload(filePath, {
+      filename_override: file.filename,
+      folder,
+      format,
+   });
+
+   return uploader;
+};
+
 const createBooks = async (req, res, next) => {
    try {
-      const coverImageMimeType = req.files.coverImage[0].mimetype
-         .split("/")
-         .at(-1);
-      const fileName = req.files.coverImage[0].filename;
+      const result = validationResult(req);
 
-      const filePath = path.resolve(
-         __dirname,
-         "../../public/data/uploads",
-         fileName
+      if (!result.isEmpty()) {
+         return next(createHttpError(400, result.errors[0].msg));
+      }
+      if (!req.files || !req.files.coverImage || !req.files.file) {
+         return next(createHttpError(400, "please upload all the files"));
+      }
+
+      const coverImage = req.files.coverImage[0];
+      const pdfFile = req.files.file[0];
+
+      const coverImageFormat = coverImage.mimetype;
+      const pdfFileFormat = pdfFile.mimetype;
+
+      if (
+         !allowedMimeTypes.coverImage.includes(coverImageFormat) ||
+         !allowedMimeTypes.file.includes(pdfFileFormat)
+      ) {
+         return next(createHttpError(400, "file format NOT supported"));
+      }
+
+      const coverResult = await uploadFileToCloudinary(
+         coverImage,
+         "books-cover",
+         coverImageFormat.split("/").at(-1)
       );
 
-      const uploader = await cloudinary.uploader.upload(filePath, {
-         filename_override: fileName,
-         folder: "books-cover",
-         format: coverImageMimeType,
-      });
-
-      const pdfName = req.files.file[0].filename;
-      const pdfPath = path.resolve(
-         __dirname,
-         "../../public/data/uploads",
-         pdfName
+      const pdfResult = await uploadFileToCloudinary(
+         pdfFile,
+         "books-pdf",
+         pdfFileFormat.split("/").at(-1)
       );
 
-      const pdfUploader = await cloudinary.uploader.upload(pdfPath, {
-         resource_type: "raw",
-         folder: "books-pdf",
-         format: "pdf",
-      });
+      await fs.unlink(
+         path.resolve(
+            __dirname,
+            "../../public/data/uploads/",
+            coverImage.filename
+         )
+      );
+      await fs.unlink(
+         path.resolve(__dirname, "../../public/data/uploads/", pdfFile.filename)
+      );
 
-      return res.send("odne");
+      res.send("done");
    } catch (error) {
-      console.error(error);
-      return next(
-         createHttpError(500, "server Error occuered while uploading files")
-      );
+      console.error("uploading error", error);
+      return next(createHttpError(500, error));
    }
 };
 

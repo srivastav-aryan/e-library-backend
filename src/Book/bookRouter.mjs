@@ -3,6 +3,8 @@ import { createBooks } from "./bookControllers.mjs";
 import multer from "multer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkSchema } from "express-validator";
+import bookSchema from "../expressValidator/bookCreationSchema.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +21,7 @@ bookRouter.post(
       { name: "coverImage", maxCount: 1 },
       { name: "file", maxCount: 1 },
    ]),
+   checkSchema(bookSchema),
    createBooks
 );
 
