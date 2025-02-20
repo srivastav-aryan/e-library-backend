@@ -68,6 +68,14 @@ const createBooks = async (req, res, next) => {
          pdfFileFormat.split("/").at(-1)
       );
 
+      const newBook = await Books.create({
+         title: req.body.title,
+         genere: req.body.genere,
+         author: "678fc83172da1fa0536f6491",
+         coverImage: coverResult.secure_url,
+         file: pdfResult.secure_url,
+      });
+
       await fs.unlink(
          path.resolve(
             __dirname,
@@ -79,7 +87,7 @@ const createBooks = async (req, res, next) => {
          path.resolve(__dirname, "../../public/data/uploads/", pdfFile.filename)
       );
 
-      res.send("done");
+      res.status(201).json({ id: newBook._id });
    } catch (error) {
       console.error("uploading error", error);
       return next(createHttpError(500, error));

@@ -51,23 +51,18 @@ const createUser = async (req, res, next) => {
 };
 
 const loginUser = async (req, res, next) => {
-   const { email, password } = req.body;
+   const result = validationResult(req);
 
-   try {
-      const user = await Users.findOne({ email });
-      if (!user) return next(createHttpError(401, `invalid email`));
-
-      const passwordValid = await bcrypt.compare(password, user.password);
-      if (!passwordValid) return next(createHttpError(401, "invalid passwrod"));
-      const token = jwt.sign({ sub: user._id }, process.env.jwt_secret, {
-         expiresIn: "7d",
-      });
-
-      res.status(200).json({ accessToken: token });
-   } catch (error) {
-      console.log(`server failiure:- ${error}`);
-      return next(createHttpError(500, error));
+   if (!result.isEmpty()) {
+      const customError = createHttpError(400, result.errors[0].msg);
+      return next(customError);
    }
+
+   const payload = { sub: req.user._id };
+   const token = jwt.sign(payload, conf.jwt_secret, {
+      expiresIn: "7d",
+   });
+   return res.status(200).json({ authToken: token });
 };
 
 export { createUser, loginUser };
