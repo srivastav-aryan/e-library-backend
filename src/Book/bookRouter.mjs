@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkSchema } from "express-validator";
 import bookSchema from "../expressValidator/bookCreationSchema.mjs";
-// import { authenticate } from "passport";
+import passport from "../config/passportjwt-config.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +18,7 @@ const uploadFile = multer({
 
 bookRouter.post(
    "/",
+   passport.authenticate("jwt", { session: false }),
    uploadFile.fields([
       { name: "coverImage", maxCount: 1 },
       { name: "file", maxCount: 1 },

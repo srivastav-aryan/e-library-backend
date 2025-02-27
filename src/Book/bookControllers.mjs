@@ -71,7 +71,7 @@ const createBooks = async (req, res, next) => {
       const newBook = await Books.create({
          title: req.body.title,
          genere: req.body.genere,
-         author: "678fc83172da1fa0536f6491",
+         author: req.user._id,
          coverImage: coverResult.secure_url,
          file: pdfResult.secure_url,
       });
