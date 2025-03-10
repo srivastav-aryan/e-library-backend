@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import createHttpError from "http-errors";
 import Books from "./bookModel.mjs";
 import { validationResult } from "express-validator";
+import { log } from "node:console";
 
 // -----setup __dirname and __filename for es module-----
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +33,7 @@ const uploadFileToCloudinary = async (file, folder, format) => {
    return uploader;
 };
 
+// ---------Controllers----------
 const createBooks = async (req, res, next) => {
    try {
       const result = validationResult(req);
@@ -42,6 +44,8 @@ const createBooks = async (req, res, next) => {
       if (!req.files || !req.files.coverImage || !req.files.file) {
          return next(createHttpError(400, "please upload all the files"));
       }
+
+      // console.log(req.files);
 
       const coverImage = req.files.coverImage[0];
       const pdfFile = req.files.file[0];
@@ -94,4 +98,74 @@ const createBooks = async (req, res, next) => {
    }
 };
 
-export { createBooks };
+const updateBooks = async (req, res, next) => {
+   try {
+      const { title, genere } = req.body;
+
+      const bookId = req.params.bookId;
+
+      const book = await Books.findOne({ _id: bookId });
+      if (!book) {
+         return next(createHttpError(400, "No such book here"));
+      }
+
+      if (book.author.toString() !== req.user._id.toString()) {
+         return next(
+            createHttpError(403, "UNAUTHORIZED, you cannot update this book")
+         );
+      }
+
+      const coverImage = req.files.coverImage[0];
+      const pdfFile = req.files.file[0];
+
+      const coverImgFormat = coverImage.mimetype;
+      const pdfFileFormat = pdfFile.mimetype;
+
+      if (
+         !allowedMimeTypes.coverImage.includes(coverImgFormat) ||
+         !allowedMimeTypes.file.includes(pdfFileFormat)
+      ) {
+         return next(createHttpError(400, "file format NOT supported"));
+      }
+
+      const coverImageResult = await uploadFileToCloudinary(
+         coverImage,
+         "books-cover",
+         coverImgFormat.split("/").at(-1)
+      );
+
+      await fs.unlink(
+         path.resolve(
+            __dirname,
+            "../../public/data/uploads/",
+            coverImage.filename
+         )
+      );
+
+      const pdfResult = await uploadFileToCloudinary(
+         pdfFile,
+         "books-pdf",
+         pdfFileFormat.split("/").at(-1)
+      );
+
+      await fs.unlink(
+         path.resolve(__dirname, "../../public/data/uploads/", pdfFile.filename)
+      );
+
+      const updatedBook = await Books.findOneAndUpdate(
+         { _id: bookId },
+         {
+            title: title,
+            genere: genere,
+            coverImage: coverImageResult.secure_url,
+            file: pdfResult.secure_url,
+         },
+         { new: true }
+      );
+      res.json(updatedBook);
+   } catch (error) {
+      return next(createHttpError(500, `serverError ${error}`));
+   }
+};
+
+export { createBooks, updateBooks };
