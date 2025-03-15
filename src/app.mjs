@@ -3,8 +3,14 @@ import globalErrorHandler from "./middlewares/globalErrorHandler.mjs";
 import userRouter from "./User/userRouter.mjs";
 import passport from "passport";
 import { bookRouter } from "./Book/bookRouter.mjs";
+import cors from "cors";
 
 const app = express();
+app.use(
+   cors({
+      origin: "http://localhost:3000",
+   })
+);
 app.use(express.json());
 // app.use(express.urlencoded);
 app.use(passport.initialize());
