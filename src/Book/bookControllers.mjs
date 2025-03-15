@@ -98,6 +98,29 @@ const createBooks = async (req, res, next) => {
    }
 };
 
+const readBooks = async (req, res, next) => {
+   try {
+      const books = await Books.find();
+
+      res.json(books);
+   } catch (error) {
+      return next(createHttpError(500, error));
+   }
+};
+
+const readOneBook = async (req, res, next) => {
+   try {
+      const bookId = req.params.bookId;
+      const book = await Books.findOne({ _id: bookId });
+      if (!book) {
+         return next(createHttpError(401, "No such book availabel"));
+      }
+      res.json(book);
+   } catch (error) {
+      return next(createHttpError(500, error));
+   }
+};
+
 const updateBooks = async (req, res, next) => {
    try {
       const { title, genere } = req.body;
@@ -152,6 +175,21 @@ const updateBooks = async (req, res, next) => {
          path.resolve(__dirname, "../../public/data/uploads/", pdfFile.filename)
       );
 
+      const coverImageUrl = book.coverImage;
+      const coverImagePubId =
+         coverImageUrl.split("/").at(-2) +
+         "/" +
+         coverImageUrl.split("/").at(-1).split(".").at(-2);
+
+      const pdfUrl = book.file;
+      const pdfPubId =
+         pdfUrl.split("/").at(-2) +
+         "/" +
+         pdfUrl.split("/").at(-1).split(".").at(-2);
+
+      await cloudinary.uploader.destroy(coverImagePubId);
+      await cloudinary.uploader.destroy(pdfPubId);
+
       const updatedBook = await Books.findOneAndUpdate(
          { _id: bookId },
          {
@@ -168,4 +206,40 @@ const updateBooks = async (req, res, next) => {
    }
 };
 
-export { createBooks, updateBooks };
+const deleteBooks = async (req, res, next) => {
+   const bookId = req.params.bookId;
+
+   const book = await Books.findOne({ _id: bookId });
+
+   if (!book) {
+      return next(createHttpError(400, "Book not found"));
+   }
+
+   if (book.author.toString() !== req.user._id.toString()) {
+      return next(createHttpError(403, "You cannot delete others book"));
+   }
+
+   const coverImageUrl = book.coverImage;
+   const coverImagePubId =
+      coverImageUrl.split("/").at(-2) +
+      "/" +
+      coverImageUrl.split("/").at(-1).split(".").at(-2);
+
+   const pdfUrl = book.file;
+   const pdfPubId =
+      pdfUrl.split("/").at(-2) +
+      "/" +
+      pdfUrl.split("/").at(-1).split(".").at(-2);
+
+   await cloudinary.uploader.destroy(coverImagePubId);
+   await cloudinary.uploader.destroy(pdfPubId);
+   // await cloudinary.uploader.destroy(pdfPubId, {
+   //    resource_type: "raw",
+   // });
+
+   await Books.deleteOne({ _id: bookId });
+
+   return res.sendStatus(204);
+};
+
+export { createBooks, readBooks, readOneBook, updateBooks, deleteBooks };

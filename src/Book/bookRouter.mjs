@@ -1,5 +1,11 @@
 import express from "express";
-import { createBooks, updateBooks } from "./bookControllers.mjs";
+import {
+   createBooks,
+   readBooks,
+   updateBooks,
+   readOneBook,
+   deleteBooks,
+} from "./bookControllers.mjs";
 import multer from "multer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,5 +41,15 @@ bookRouter.patch(
       { name: "file", maxCount: 1 },
    ]),
    updateBooks
+);
+
+bookRouter.get("/", readBooks);
+
+bookRouter.get("/:bookId", readOneBook);
+
+bookRouter.delete(
+   "/:bookId",
+   passport.authenticate("jwt", { session: false }),
+   deleteBooks
 );
 export { bookRouter };
