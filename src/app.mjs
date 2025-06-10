@@ -6,9 +6,12 @@ import { bookRouter } from "./Book/bookRouter.mjs";
 import cors from "cors";
 
 const app = express();
+
 app.use(
    cors({
-      origin: "http://localhost:3000",
+      origin: process.env.FRONTEND_DEV_SERVER,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      credentials: true,
    })
 );
 app.use(express.json());
