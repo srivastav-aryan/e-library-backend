@@ -10,10 +10,18 @@ export default passport.use(
          try {
             const user = await Users.findOne({ email });
 
-            if (!user) return done(null, false, { message: "Invalid Email" });
+            if (!user) {
+               return done(null, false, {
+                  code: "EMAIL_NOT_FOUND",
+                  message: "No account found with this email",
+               });
+            }
             const validPass = await bcrypt.compare(password, user.password);
             if (!validPass)
-               return done(null, false, { message: "Invalid password" });
+               return done(null, false, {
+                  code: "INAVLID_PASSWORD",
+                  message: "Invalid password",
+               });
 
             done(null, user);
          } catch (error) {

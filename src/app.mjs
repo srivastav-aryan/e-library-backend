@@ -4,12 +4,13 @@ import userRouter from "./User/userRouter.mjs";
 import passport from "passport";
 import { bookRouter } from "./Book/bookRouter.mjs";
 import cors from "cors";
+import { conf } from "./config/config.mjs";
 
 const app = express();
 
 app.use(
    cors({
-      origin: process.env.FRONTEND_DEV_SERVER,
+      origin: conf.frontEndServer,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       credentials: true,
    })

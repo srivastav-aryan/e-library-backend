@@ -57,7 +57,7 @@ const loginUser = async (req, res, next) => {
       const customError = createHttpError(400, result.errors[0].msg);
       return next(customError);
    }
-
+   
    const payload = { sub: req.user._id };
    const token = jwt.sign(payload, conf.jwt_secret, {
       expiresIn: "7d",

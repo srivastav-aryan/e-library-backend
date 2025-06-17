@@ -9,6 +9,7 @@ const _conf = {
    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
    cloud_api_key: process.env.CLOUDINARY_API_KEY,
    cloud_api_secret: process.env.CLOUDINARY_API_SECRET,
+   frontEndServer: process.env.FRONTEND_DEV_SERVER
 };
 
 export const conf = Object.freeze(_conf);
