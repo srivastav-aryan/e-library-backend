@@ -7,7 +7,7 @@ const startServer = async () => {
 
    const port = conf.port || 8000;
 
-   const server = app.listen(port, () =>
+   const server = app.listen(port,  () =>
       console.log(`Server Listening on the port: ${port}`)
    );
 

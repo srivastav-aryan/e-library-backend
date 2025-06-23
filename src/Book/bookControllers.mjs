@@ -133,7 +133,7 @@ const updateBooks = async (req, res, next) => {
          return next(createHttpError(400, "No such book here"));
       }
 
-      if (book.author.toString() !== req.user._id.toString()) {
+      if (book.authorId.toString() !== req.user._id.toString()) {
          return next(
             createHttpError(403, "UNAUTHORIZED, you cannot update this book")
          );
@@ -216,7 +216,7 @@ const deleteBooks = async (req, res, next) => {
       return next(createHttpError(400, "Book not found"));
    }
 
-   if (book.author.toString() !== req.user._id.toString()) {
+   if (book.authorId.toString() !== req.user._id.toString()) {
       return next(createHttpError(403, "You cannot delete others book"));
    }
 
