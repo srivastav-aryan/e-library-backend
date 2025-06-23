@@ -16,10 +16,18 @@ const bookSchema = {
       },
       trim: true,
    },
-   author: {
+   authorId: {
       in: ["body"],
       isMongoId: { errorMessage: "Author must be a valid User ID" },
       notEmpty: { errorMessage: "Author is required" },
+   },
+   authorName: {
+      in: ["body"],
+      isString: true,
+      notEmpty: {
+         errorMessage: "Author name is required and should be valid",
+      },
+      trim: true,
    },
 };
 
