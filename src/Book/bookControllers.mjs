@@ -45,7 +45,7 @@ const createBooks = async (req, res, next) => {
          return next(createHttpError(400, "please upload all the files"));
       }
 
-      console.log(req.user);
+      // console.log(req.user);
 
       const coverImage = req.files.coverImage[0];
       const pdfFile = req.files.file[0];
