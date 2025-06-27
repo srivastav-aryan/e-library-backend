@@ -1,8 +1,9 @@
 {
   "name": "e-libraryapi",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.mjs",
   "scripts": {
+    "start": "node server.mjs",
     "dev": "nodemon server.mjs"
   },
   "keywords": [],
