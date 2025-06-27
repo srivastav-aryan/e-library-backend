@@ -5,7 +5,7 @@ const globalErrorHandler = (err, req, res, next) => {
 
    return res.status(statusCode).json({
       message: err.message,
-      errorStack: conf.env == "development" ? err.stack : "",
+      errorStack: conf.env == "development" ? err.stack : "production",
    });
 };
 
